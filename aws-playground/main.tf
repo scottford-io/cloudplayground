@@ -13,6 +13,9 @@ locals {
   amazon2_ami = data.aws_ami.amazon2.id
 }
 
+////////////////////////////////
+// VPC Configuration
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 3.2"
@@ -28,6 +31,9 @@ module "vpc" {
 
   tags = var.vpc_tags
 }
+
+////////////////////////////////
+// Linux Security Groups
 
 module "linux_sg" {
   source = "terraform-aws-modules/security-group/aws"
@@ -48,6 +54,8 @@ module "linux_sg" {
   ]
 }
 
+////////////////////////////////
+// Linux Instances
 
 module "amazon2_instances" {
   source  = "terraform-aws-modules/ec2-instance/aws"
@@ -75,6 +83,55 @@ module "ubuntu2004_instances" {
   ami                    = data.aws_ami.ubuntu2004.id
   instance_type          = var.linux_instance_type
   vpc_security_group_ids = [module.vpc.default_security_group_id, module.linux_sg.security_group_id]
+  subnet_id              = module.vpc.public_subnets[0]
+  key_name               = var.aws_key_pair_name
+
+  tags                   = var.ec2_tags
+}
+
+////////////////////////////////
+// Windows Security Groups
+
+module "windows_sg" {
+  source = "terraform-aws-modules/security-group/aws"
+  version = "~> 4.3"
+
+  name        = "cloudplayground-windows-sg"
+  description = "Security group for cloudplayground windows instances"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_with_cidr_blocks = [
+    {
+      from_port   = 5985
+      to_port     = 5986
+      protocol    = "tcp"
+      description = "Winrm ports"
+      cidr_blocks = "0.0.0.0/0"
+    }
+  ]
+
+  egress_with_cidr_blocks = [
+    {
+      from_port    = 0
+      to_port      = 0
+      protocol     = "-1"
+      cidr_blocks  = "0.0.0.0/0"
+    }
+  ]
+}
+////////////////////////////////
+// Windows Security Groups
+
+module "windows2019_instances" {
+  source                 = "terraform-aws-modules/ec2-instance/aws"
+  version                = "~> 2.19"
+
+  name                   = "cloudplayground-win2019"
+  instance_count         = var.winserver2019_instance_count
+
+  ami                    = data.aws_ami.winserver2019.id
+  instance_type          = var.winserver2019_instance_type
+  vpc_security_group_ids = [module.vpc.default_security_group_id, module.windows_sg.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
   key_name               = var.aws_key_pair_name
 

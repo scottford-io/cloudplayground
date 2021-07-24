@@ -112,3 +112,21 @@ data "aws_ami" "suse15" {
 
   owners = ["013907871322"]
 }
+
+data "aws_ami" "winserver2019" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["Windows_Server-2019-English-Full-Base-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["801119661308"]
+}
+
+

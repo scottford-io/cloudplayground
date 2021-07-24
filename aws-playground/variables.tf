@@ -84,3 +84,11 @@ variable "linux_instance_type" {
 variable "linux_instance_flavor" {
   default = "amazon2"
 }
+
+variable "winserver2019_instance_type" {
+  default = "t2.micro"
+}
+
+variable "winserver2019_instance_count" {
+  default = "0" 
+}
