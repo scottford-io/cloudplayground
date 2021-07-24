@@ -92,3 +92,7 @@ variable "winserver2019_instance_type" {
 variable "winserver2019_instance_count" {
   default = "0"
 }
+
+variable "windows_admin_password" {
+  default = "cloudplayground1" 
+}

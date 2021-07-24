@@ -104,6 +104,13 @@ module "windows_sg" {
       protocol    = "tcp"
       description = "Winrm ports"
       cidr_blocks = "0.0.0.0/0"
+    },
+    {
+      from_port   = 3389
+      to_port     = 3389
+      protocol    = "tcp"
+      description = "Remote Desktop ports"
+      cidr_blocks = "0.0.0.0/0"
     }
   ]
 
@@ -116,6 +123,19 @@ module "windows_sg" {
     }
   ]
 }
+
+////////////////////////////////////
+// Windows WinRM Bootstrap Template
+
+data "template_file" "winrm_user_data" {
+  template = "${file("${path.module}/templates/win_bootstrap.tpl")}"
+
+  vars = {
+    admin_password = "${var.windows_admin_password}"
+  }
+}
+
+
 ////////////////////////////////
 // Windows Security Groups
 
@@ -130,6 +150,7 @@ module "windows2019_instances" {
   vpc_security_group_ids = [module.vpc.default_security_group_id, module.windows_sg.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
   key_name               = var.aws_key_pair_name
+  user_data              = data.template_file.winrm_user_data.rendered
 
   tags = var.ec2_tags
 }
