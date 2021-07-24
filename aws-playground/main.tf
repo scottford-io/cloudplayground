@@ -1,6 +1,6 @@
 provider "aws" {
-  region                  = var.aws_region
-  profile                 = var.aws_profile
+  region  = var.aws_region
+  profile = var.aws_profile
 }
 
 resource "random_id" "instance_id" {
@@ -8,8 +8,8 @@ resource "random_id" "instance_id" {
 }
 
 locals {
-  name   = "cloud-playground"
-  region = var.cloudplayground_region
+  name        = "cloud-playground"
+  region      = var.cloudplayground_region
   amazon2_ami = data.aws_ami.amazon2.id
 }
 
@@ -23,10 +23,9 @@ module "vpc" {
   name = var.vpc_name
   cidr = var.vpc_cidr
 
-  azs             = ["${local.region}a", "${local.region}b", "${local.region}c"]
-  private_subnets = var.vpc_private_subnets
-  public_subnets  = var.vpc_public_subnets
-
+  azs                = ["${local.region}a", "${local.region}b", "${local.region}c"]
+  private_subnets    = var.vpc_private_subnets
+  public_subnets     = var.vpc_public_subnets
   enable_nat_gateway = var.vpc_enable_nat_gateway
 
   tags = var.vpc_tags
@@ -36,7 +35,7 @@ module "vpc" {
 // Linux Security Groups
 
 module "linux_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
   version = "~> 4.3"
 
   name        = "cloudplayground-linux-sg"
@@ -61,9 +60,8 @@ module "amazon2_instances" {
   source  = "terraform-aws-modules/ec2-instance/aws"
   version = "~> 2.19"
 
-  name           = "cloudplayground-amazon2"
-  instance_count = var.amazon2_instance_count
-
+  name                   = "cloudplayground-amazon2"
+  instance_count         = var.amazon2_instance_count
   ami                    = data.aws_ami.amazon2.id
   instance_type          = var.linux_instance_type
   vpc_security_group_ids = [module.vpc.default_security_group_id, module.linux_sg.security_group_id]
@@ -74,26 +72,25 @@ module "amazon2_instances" {
 }
 
 module "ubuntu2004_instances" {
-  source                 = "terraform-aws-modules/ec2-instance/aws"
-  version                = "~> 2.19"
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "~> 2.19"
 
   name                   = "cloudplayground-ubuntu2004"
   instance_count         = var.ubuntu2004_instance_count
-
   ami                    = data.aws_ami.ubuntu2004.id
   instance_type          = var.linux_instance_type
   vpc_security_group_ids = [module.vpc.default_security_group_id, module.linux_sg.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
   key_name               = var.aws_key_pair_name
 
-  tags                   = var.ec2_tags
+  tags = var.ec2_tags
 }
 
 ////////////////////////////////
 // Windows Security Groups
 
 module "windows_sg" {
-  source = "terraform-aws-modules/security-group/aws"
+  source  = "terraform-aws-modules/security-group/aws"
   version = "~> 4.3"
 
   name        = "cloudplayground-windows-sg"
@@ -112,10 +109,10 @@ module "windows_sg" {
 
   egress_with_cidr_blocks = [
     {
-      from_port    = 0
-      to_port      = 0
-      protocol     = "-1"
-      cidr_blocks  = "0.0.0.0/0"
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = "0.0.0.0/0"
     }
   ]
 }
@@ -123,17 +120,16 @@ module "windows_sg" {
 // Windows Security Groups
 
 module "windows2019_instances" {
-  source                 = "terraform-aws-modules/ec2-instance/aws"
-  version                = "~> 2.19"
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "~> 2.19"
 
   name                   = "cloudplayground-win2019"
   instance_count         = var.winserver2019_instance_count
-
   ami                    = data.aws_ami.winserver2019.id
   instance_type          = var.winserver2019_instance_type
   vpc_security_group_ids = [module.vpc.default_security_group_id, module.windows_sg.security_group_id]
   subnet_id              = module.vpc.public_subnets[0]
   key_name               = var.aws_key_pair_name
 
-  tags                   = var.ec2_tags
+  tags = var.ec2_tags
 }

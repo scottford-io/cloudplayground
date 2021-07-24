@@ -6,7 +6,7 @@ variable "aws_profile" {
 }
 
 variable "aws_region" {
-    default = "us-east-1"
+  default = "us-east-1"
 }
 
 variable "aws_key_pair_name" {}
@@ -74,7 +74,7 @@ variable "amazon2_instance_count" {
 }
 
 variable "ubuntu2004_instance_count" {
-  default = "0" 
+  default = "0"
 }
 
 variable "linux_instance_type" {
@@ -90,5 +90,5 @@ variable "winserver2019_instance_type" {
 }
 
 variable "winserver2019_instance_count" {
-  default = "0" 
+  default = "0"
 }
